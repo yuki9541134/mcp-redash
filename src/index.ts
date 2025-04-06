@@ -75,32 +75,32 @@ server.setRequestHandler(ListToolsRequestSchema, async (request) => {
       {
         name: "execute_query",
         description: "Execute a SQL query against Redash data source and return a job ID",
-        parameters: zodToJsonSchema(queries.ExecuteQuerySchema),
+        inputSchema: zodToJsonSchema(queries.ExecuteQuerySchema),
       },
       {
         name: "get_job_status",
         description: "Check the status of a running query job",
-        parameters: zodToJsonSchema(jobs.JobStatusSchema),
+        inputSchema: zodToJsonSchema(jobs.JobStatusSchema),
       },
       {
         name: "get_query_result",
         description: "Get the results of a completed query",
-        parameters: zodToJsonSchema(queries.QueryResultSchema),
+        inputSchema: zodToJsonSchema(queries.QueryResultSchema),
       },
       {
         name: "execute_query_and_wait",
         description: "Execute a SQL query and wait for the results",
-        parameters: zodToJsonSchema(queries.ExecuteQuerySchema),
+        inputSchema: zodToJsonSchema(queries.ExecuteQuerySchema),
       },
       {
         name: "list_data_sources",
         description: "List all available data sources",
-        parameters: zodToJsonSchema(z.object({})),
+        inputSchema: zodToJsonSchema(z.object({})),
       },
       {
         name: "get_data_source",
         description: "Get details about a specific data source",
-        parameters: zodToJsonSchema(datasources.DataSourceSchema),
+        inputSchema: zodToJsonSchema(datasources.DataSourceSchema),
       },
     ],
   };

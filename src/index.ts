@@ -69,7 +69,7 @@ function formatRedashError(error: RedashError): string {
 }
 
 // ListToolsリクエスト処理
-server.addHandler(ListToolsRequestSchema, async (request) => {
+server.setRequestHandler(ListToolsRequestSchema, async (request) => {
   return {
     tools: [
       {
@@ -107,7 +107,7 @@ server.addHandler(ListToolsRequestSchema, async (request) => {
 });
 
 // CallToolリクエスト処理
-server.addHandler(CallToolRequestSchema, async (request) => {
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
     switch (request.params.name) {
       case "execute_query": {

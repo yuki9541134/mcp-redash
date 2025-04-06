@@ -15,7 +15,9 @@
   "author": "yuki9541134",
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.0.1",
-    "node-fetch": "^2.6.9"
+    "node-fetch": "^2.6.9",
+    "zod": "^3.22.4",
+    "zod-to-json-schema": "^3.23.5"
   },
   "devDependencies": {
     "@types/node": "^20.4.2",

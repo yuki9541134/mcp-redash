@@ -72,8 +72,9 @@ export async function handleResponse<T>(response: Response): Promise<T> {
  */
 export async function apiGet<T>(endpoint: string): Promise<T> {
   const { baseUrl } = getConfig();
+  const url = `${baseUrl}${endpoint}`;
   
-  const response = await fetch(`${baseUrl}${endpoint}`, {
+  const response = await fetch(url, {
     method: 'GET',
     headers: createHeaders()
   });
@@ -86,13 +87,14 @@ export async function apiGet<T>(endpoint: string): Promise<T> {
  */
 export async function apiPost<T, U = any>(endpoint: string, data: U): Promise<T> {
   const { baseUrl } = getConfig();
-  
-  const response = await fetch(`${baseUrl}${endpoint}`, {
+  const url = `${baseUrl}${endpoint}`;
+    
+  const response = await fetch(url, {
     method: 'POST',
     headers: createHeaders(),
     body: JSON.stringify(data)
   });
-  
+
   return handleResponse<T>(response);
 }
 

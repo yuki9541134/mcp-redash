@@ -44,8 +44,8 @@ export async function executeQuery(params: z.infer<typeof ExecuteQuerySchema>): 
     max_age: params.max_age
   };
   
-  const response = await apiPost<{ job: { id: string } }>('/api/query_results', queryParams);
-  return response.job.id;
+  const response = await apiPost<{ query_result: { id: number } }>('/api/query_results', queryParams);
+  return String(response.query_result.id);
 }
 
 /**
@@ -64,16 +64,7 @@ export async function executeQueryAndWait(
   timeout: number = 60000,
   interval: number = 1000
 ): Promise<QueryResult> {
-  const jobId = await executeQuery(params);
-  const job = await waitForJob(jobId, timeout, interval);
-  
-  if (job.status === 'failed') {
-    throw new Error(`Query execution failed: ${job.error || 'Unknown error'}`);
-  }
-  
-  if (!job.query_result_id) {
-    throw new Error('Query completed but no result ID was provided');
-  }
-  
-  return getQueryResult(job.query_result_id);
+  const queryResultId = await executeQuery(params);
+  // query_resultが直接返される場合は、waitForJobは不要
+  return getQueryResult(parseInt(queryResultId, 10));
 } 

@@ -112,9 +112,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     switch (request.params.name) {
       case "execute_query": {
         const args = queries.ExecuteQuerySchema.parse(request.params.arguments);
-        const queryResultId = await queries.executeQuery(args);
+        const jobId = await queries.executeQuery(args);
         return {
-          content: [{ type: "text", text: JSON.stringify({ query_result_id: queryResultId }, null, 2) }],
+          content: [{ type: "text", text: JSON.stringify({ job_id: jobId }, null, 2) }],
         };
       }
       case "get_job_status": {

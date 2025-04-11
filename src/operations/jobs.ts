@@ -45,7 +45,7 @@ export async function waitForJob(
   while (Date.now() - startTime < timeout) {
     const job = await getJobStatus(jobId);
     
-    if (job.status === 'finished' || job.status === 'failed') {
+    if (job.status === 1 || job.status === 2) {
       return job;
     }
     

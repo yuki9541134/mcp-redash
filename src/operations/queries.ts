@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { apiPost, apiGet } from '../common/utils.js';
 import { getConfig } from '../config.js';
 import { QueryParams, QueryResult, Job } from '../common/types.js';
-import { RedashValidationError } from '../common/errors.js';
+import { RedashValidationError, RedashError } from '../common/errors.js';
 import { getJobStatus, waitForJob } from './jobs.js';
 
 /**
@@ -41,11 +41,11 @@ export async function executeQuery(params: z.infer<typeof ExecuteQuerySchema>): 
   const queryParams: QueryParams = {
     data_source_id,
     query: params.query,
-    max_age: params.max_age
+    max_age: 0
   };
   
-  const response = await apiPost<{ query_result: { id: number } }>('/api/query_results', queryParams);
-  return String(response.query_result.id);
+  const response = await apiPost<{ job: { id: string } }>('/api/query_results', queryParams);
+  return response.job.id;
 }
 
 /**
@@ -64,7 +64,16 @@ export async function executeQueryAndWait(
   timeout: number = 60000,
   interval: number = 1000
 ): Promise<QueryResult> {
-  const queryResultId = await executeQuery(params);
-  // query_resultが直接返される場合は、waitForJobは不要
-  return getQueryResult(parseInt(queryResultId, 10));
-} 
+  const jobId = await executeQuery(params);
+  const job = await waitForJob(jobId, timeout, interval);
+  
+  if (job.status === 4) {
+    throw new RedashError(`Query execution failed: ${job.error || 'Unknown error'}`);
+  }
+  
+  if (!job.query_result_id) {
+    throw new RedashError('Query completed but no result was returned');
+  }
+  
+  return getQueryResult(job.query_result_id);
+}

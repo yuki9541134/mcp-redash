@@ -41,7 +41,7 @@ export type JobStatus = 'pending' | 'processing' | 'finished' | 'failed';
  */
 export interface Job {
   id: string;
-  status: JobStatus;
+  status: number;
   error?: string;
   query_result_id?: number;
   updated_at: string;

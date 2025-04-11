@@ -44,7 +44,6 @@ export interface Job {
   status: number;
   error?: string;
   query_result_id?: number;
-  updated_at: string;
 }
 
 /**

@@ -37,15 +37,15 @@ export async function getJobStatus(jobId: string): Promise<Job> {
  */
 export async function waitForJob(
   jobId: string, 
-  timeout: number = 60000, 
+  timeout: number = 300000, 
   interval: number = 1000
 ): Promise<Job> {
   const startTime = Date.now();
   
   while (Date.now() - startTime < timeout) {
     const job = await getJobStatus(jobId);
-    
-    if (job.status === 1 || job.status === 2) {
+
+    if (job.status === 3 || job.status === 4 || job.status === 5) {
       return job;
     }
     

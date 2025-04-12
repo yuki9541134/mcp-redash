@@ -44,6 +44,16 @@ export interface Job {
   status: number;
   error?: string;
   query_result_id?: number;
+  updated_at?: number;
+  result?: any;
+}
+
+/**
+ * ジョブレスポンスの型（入れ子になっている場合）
+ */
+export interface JobResponse {
+  job?: Job;
+  [key: string]: any;
 }
 
 /**

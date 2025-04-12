@@ -5,7 +5,7 @@
 import { z } from 'zod';
 import { apiPost, apiGet } from '../common/utils.js';
 import { getConfig } from '../config.js';
-import { QueryParams, QueryResult, Job } from '../common/types.js';
+import { QueryParams, QueryResult, Job, JobResponse } from '../common/types.js';
 import { RedashValidationError, RedashError } from '../common/errors.js';
 import { getJobStatus, waitForJob } from './jobs.js';
 
@@ -65,7 +65,10 @@ export async function executeQueryAndWait(
   interval: number = 1000
 ): Promise<QueryResult> {
   const jobId = await executeQuery(params);
-  const job = await waitForJob(jobId, timeout, interval);
+  const response = await waitForJob(jobId, timeout, interval);
+  
+  // responseがjobプロパティを持つオブジェクトの場合
+  const job = response.job || response as unknown as Job;
   
   if (job.status === 4) {
     throw new RedashError(`Query execution failed: ${job.error || 'Unknown error'}`);

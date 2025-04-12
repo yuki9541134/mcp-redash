@@ -72,21 +72,22 @@ function formatRedashError(error: RedashError): string {
 server.setRequestHandler(ListToolsRequestSchema, async (request) => {
   return {
     tools: [
-      {
-        name: "execute_query",
-        description: "Execute a SQL query against Redash data source and return a job ID",
-        inputSchema: zodToJsonSchema(queries.ExecuteQuerySchema),
-      },
-      {
-        name: "get_job_status",
-        description: "Check the status of a running query job",
-        inputSchema: zodToJsonSchema(jobs.JobStatusSchema),
-      },
-      {
-        name: "get_query_result",
-        description: "Get the results of a completed query",
-        inputSchema: zodToJsonSchema(queries.QueryResultSchema),
-      },
+      // 使わなそうなのでコメントアウト
+      // {
+      //   name: "execute_query",
+      //   description: "Execute a SQL query against Redash data source and return a job ID",
+      //   inputSchema: zodToJsonSchema(queries.ExecuteQuerySchema),
+      // },
+      // {
+      //   name: "get_job_status",
+      //   description: "Check the status of a running query job",
+      //   inputSchema: zodToJsonSchema(jobs.JobStatusSchema),
+      // },
+      // {
+      //   name: "get_query_result",
+      //   description: "Get the results of a completed query",
+      //   inputSchema: zodToJsonSchema(queries.QueryResultSchema),
+      // },
       {
         name: "execute_query_and_wait",
         description: "Execute a SQL query and wait for the results",

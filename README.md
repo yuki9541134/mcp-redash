@@ -43,6 +43,29 @@ Redash APIのMCPサーバーで、クエリの実行、結果の取得などの�
 
 Claude DesktopまたはCursorで使用するには、設定に以下を追加してください:
 
+
+#### npx
+
+```json
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "yuki9541134/mcp-redash"
+      ],
+      "env": {
+        "REDASH_API_KEY": "<YOUR_API_KEY>",
+        "REDASH_BASE_URL": "https://redash.example.com"
+      }
+    }
+  }
+}
+```
+
+#### Docker
+
 ```json
 {
   "mcpServers": {
@@ -58,7 +81,7 @@ Claude DesktopまたはCursorで使用するには、設定に以下を追加し
         "yuki9541134/mcp-redash"
       ],
       "env": {
-        "REDASH_API_KEY": "あなたのAPIキー",
+        "REDASH_API_KEY": "<YOUR_API_KEY>",
         "REDASH_BASE_URL": "https://redash.example.com"
       }
     }

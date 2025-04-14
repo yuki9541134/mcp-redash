@@ -26,10 +26,10 @@ Redash APIのMCPサーバーで、クエリの実行、結果の取得などの�
 
 ### APIキー
 
-このMCPサーバーを使用するにはRedash APIキーが必要です:
+Redash APIキーを取得してください。
 
 1. Redashにログイン
-2. Edit Profileをクリック
+2. 「Edit Profile」をクリック
 3. APIキーをコピーする
 
 ### 環境変数
@@ -39,26 +39,16 @@ Redash APIのMCPサーバーで、クエリの実行、結果の取得などの�
 * `REDASH_API_KEY`: RedashのAPIキー
 * `REDASH_BASE_URL`: RedashのURL（例: https://redash.example.com）
 
+### npxで利用する場合
 
-#### npx
+ビルドとnpxコマンドの登録を行ってください
 
 ```
 npm run build
 npm link
 ```
 
-### Docker
-
-```bash
-docker build -t yuki9541134/mcp-redash .
-```
-
-### Claude DesktopまたはCursorでの使用方法
-
-Claude DesktopまたはCursorで使用するには、設定に以下を追加してください:
-
-
-#### npx
+Claude DesktopまたはCursorのMCP設定に以下を追加してください
 
 ```json
 {
@@ -77,7 +67,15 @@ Claude DesktopまたはCursorで使用するには、設定に以下を追加し
 }
 ```
 
-#### Docker
+### Dockerで利用する場合
+
+ビルドを行ってください
+
+```bash
+docker build -t yuki9541134/mcp-redash .
+```
+
+Claude DesktopまたはCursorのMCP設定に以下を追加してください
 
 ```json
 {

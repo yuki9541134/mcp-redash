@@ -39,6 +39,20 @@ Redash APIのMCPサーバーで、クエリの実行、結果の取得などの�
 * `REDASH_API_KEY`: RedashのAPIキー
 * `REDASH_BASE_URL`: RedashのURL（例: https://redash.example.com）
 
+
+#### npx
+
+```
+npm run build
+npm link
+```
+
+### Docker
+
+```bash
+docker build -t yuki9541134/mcp-redash .
+```
+
 ### Claude DesktopまたはCursorでの使用方法
 
 Claude DesktopまたはCursorで使用するには、設定に以下を追加してください:
@@ -49,11 +63,10 @@ Claude DesktopまたはCursorで使用するには、設定に以下を追加し
 ```json
 {
   "mcpServers": {
-    "github": {
+    "redash": {
       "command": "npx",
       "args": [
-        "-y",
-        "yuki9541134/mcp-redash"
+        "mcp-redash"
       ],
       "env": {
         "REDASH_API_KEY": "<YOUR_API_KEY>",
@@ -87,12 +100,4 @@ Claude DesktopまたはCursorで使用するには、設定に以下を追加し
     }
   }
 }
-```
-
-## ビルド
-
-Dockerビルド:
-
-```bash
-docker build -t yuki9541134/mcp-redash .
 ```

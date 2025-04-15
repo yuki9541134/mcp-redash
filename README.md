@@ -93,7 +93,6 @@ Claude DesktopまたはCursorのMCP設定に以下を追加してください
         "--rm",
         "-e", "REDASH_API_KEY",
         "-e", "REDASH_BASE_URL",
-        "-e", "DATA_SOURCE_ID",
         "yuki9541134/mcp-redash"
       ],
       "env": {

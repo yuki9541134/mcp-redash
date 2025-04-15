@@ -39,6 +39,10 @@ Redash APIキーを取得してください。
 * `REDASH_API_KEY`: RedashのAPIキー
 * `REDASH_BASE_URL`: RedashのURL（例: https://redash.example.com）
 
+### git clone
+
+このリポジトリをローカルにcloneしてください
+
 ### npxで利用する場合
 
 ビルドとnpxコマンドの登録を行ってください

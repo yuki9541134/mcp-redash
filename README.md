@@ -47,7 +47,8 @@ Redash APIキーを取得してください。
 
 ビルドとnpxコマンドの登録を行ってください
 
-```
+```sh
+npm install
 npm run build
 npm link
 ```
@@ -75,7 +76,7 @@ Claude DesktopまたはCursorのMCP設定に以下を追加してください
 
 ビルドを行ってください
 
-```bash
+```sh
 docker build -t yuki9541134/mcp-redash .
 ```
 

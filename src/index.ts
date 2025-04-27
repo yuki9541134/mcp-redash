@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
 import express, { Request, Response } from 'express';
+import { mcpAuthRouter } from '@modelcontextprotocol/sdk/server/auth/router.js';
+import { requireBearerAuth } from "@modelcontextprotocol/sdk/server/auth/middleware/bearerAuth.js";
+import { ProxyOAuthServerProvider } from '@modelcontextprotocol/sdk/server/auth/providers/proxyProvider.js';
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
@@ -187,7 +190,47 @@ const app = express();
 
 const transports: {[sessionId: string]: SSEServerTransport} = {};
 
-app.get("/sse", async (_: Request, res: Response) => {
+const proxyProvider = new ProxyOAuthServerProvider({
+  endpoints: {
+      authorizationUrl: "https://accounts.google.com/o/oauth2/v2/auth",
+      tokenUrl: "https://oauth2.googleapis.com/token",
+      revocationUrl: "https://oauth2.googleapis.com/revoke",
+  },
+  verifyAccessToken: async (token) => {
+      const response = await fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${token}`);
+      if (!response.ok) {
+          throw new Error('トークン検証に失敗しました');
+      }
+      
+      const tokenInfo = await response.json();
+      return {
+          token,
+          clientId: tokenInfo.aud,
+          scopes: tokenInfo.scope ? tokenInfo.scope.split(' ') : ["openid", "email", "profile"],
+      }
+  },
+  getClient: async (client_id) => {
+      const googleClientId = "hoge";
+      const googleClientSecret = "hoge";
+      
+      return {
+          client_id: googleClientId,
+          client_secret: googleClientSecret,
+          redirect_uris: ["http://localhost:3000/callback"],
+      }
+  }
+});
+
+app.use(mcpAuthRouter({
+  provider: proxyProvider,
+  issuerUrl: new URL("https://accounts.google.com"),
+  baseUrl: new URL("http://localhost:3000"),
+}));
+
+app.get(
+  "/sse",
+  requireBearerAuth({ provider: proxyProvider, requiredScopes: [] }),
+  async (_: Request, res: Response) => {
   const transport = new SSEServerTransport('/messages', res);
   transports[transport.sessionId] = transport;
   res.on("close", () => {

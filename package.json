@@ -17,7 +17,7 @@
   },
   "author": "yuki9541134",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "1.0.1",
+    "@modelcontextprotocol/sdk": "^1.10.2",
     "express": "^5.1.0",
     "node-fetch": "^2.6.9",
     "zod": "^3.22.4",

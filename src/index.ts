@@ -14,6 +14,7 @@ import {
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import fetch from 'node-fetch';
+import * as dotenv from "dotenv";
 
 // Redash APIのオペレーションをインポート
 import * as queries from './operations/queries.js';
@@ -28,6 +29,8 @@ import {
   RedashAuthenticationError,
   isRedashError,
 } from './common/errors.js';
+
+dotenv.config();
 
 // バージョン情報
 const VERSION = "1.0.0";
@@ -192,9 +195,10 @@ const transports: {[sessionId: string]: SSEServerTransport} = {};
 
 const proxyProvider = new ProxyOAuthServerProvider({
   endpoints: {
-      authorizationUrl: "https://accounts.google.com/o/oauth2/v2/auth",
-      tokenUrl: "https://oauth2.googleapis.com/token",
-      revocationUrl: "https://oauth2.googleapis.com/revoke",
+      authorizationUrl: "http://localhost:3000/authorize",
+      tokenUrl: "http://localhost:3000/token",
+      revocationUrl: "http://localhost:3000/revoke",
+      registrationUrl: "http://localhost:3000/register",
   },
   verifyAccessToken: async (token) => {
       const response = await fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${token}`);
@@ -210,9 +214,13 @@ const proxyProvider = new ProxyOAuthServerProvider({
       }
   },
   getClient: async (client_id) => {
-      const googleClientId = "hoge";
-      const googleClientSecret = "hoge";
+      const googleClientId = process.env.GOOGLE_CLIENT_ID;
+      const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
       
+      if (!googleClientId || !googleClientSecret) {
+        throw new Error('GOOGLE_CLIENT_ID または GOOGLE_CLIENT_SECRET が設定されていません');
+      }
+
       return {
           client_id: googleClientId,
           client_secret: googleClientSecret,

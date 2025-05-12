@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
+import express, { Request, Response } from 'express';
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
   CallToolRequestSchema,
@@ -9,6 +11,7 @@ import {
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import fetch from 'node-fetch';
+import * as dotenv from "dotenv";
 
 // Redash APIのオペレーションをインポート
 import * as queries from './operations/queries.js';
@@ -23,6 +26,8 @@ import {
   RedashAuthenticationError,
   isRedashError,
 } from './common/errors.js';
+
+dotenv.config();
 
 // バージョン情報
 const VERSION = "1.0.0";
@@ -179,4 +184,29 @@ async function runServer() {
 runServer().catch((error) => {
   console.error("Fatal error in main():", error);
   process.exit(1);
-}); 
+});
+
+const app = express();
+
+const transports: {[sessionId: string]: SSEServerTransport} = {};
+
+app.get("/sse", async (_: Request, res: Response) => {
+  const transport = new SSEServerTransport('/messages', res);
+  transports[transport.sessionId] = transport;
+  res.on("close", () => {
+    delete transports[transport.sessionId];
+  });
+  await server.connect(transport);
+});
+
+app.post("/messages", async (req: Request, res: Response) => {
+  const sessionId = req.query.sessionId as string;
+  const transport = transports[sessionId];
+  if (transport) {
+    await transport.handlePostMessage(req, res);
+  } else {
+    res.status(400).send('No transport found for sessionId');
+  }
+});
+
+app.listen(3000);

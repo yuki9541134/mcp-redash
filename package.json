@@ -18,11 +18,14 @@
   "author": "yuki9541134",
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.0.1",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
     "node-fetch": "^2.6.9",
     "zod": "^3.22.4",
     "zod-to-json-schema": "^3.23.5"
   },
   "devDependencies": {
+    "@types/express": "^5.0.1",
     "@types/node": "^20.4.2",
     "@types/node-fetch": "^2.6.4",
     "@typescript-eslint/eslint-plugin": "^6.1.0",

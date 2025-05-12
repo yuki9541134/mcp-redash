@@ -11,6 +11,7 @@ import {
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import fetch from 'node-fetch';
+import * as dotenv from "dotenv";
 
 // Redash APIのオペレーションをインポート
 import * as queries from './operations/queries.js';
@@ -25,6 +26,8 @@ import {
   RedashAuthenticationError,
   isRedashError,
 } from './common/errors.js';
+
+dotenv.config();
 
 // バージョン情報
 const VERSION = "1.0.0";

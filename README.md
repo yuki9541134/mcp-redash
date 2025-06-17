@@ -103,3 +103,21 @@ Claude DesktopまたはCursorのMCP設定に以下を追加してください
   }
 }
 ```
+
+### SSEモードで利用する場合
+
+HTTPサーバーとして起動し、Server-Sent Events (SSE) を使用した通信を行うことも可能です。
+
+#### 開発時
+```bash
+npm run dev -- --sse
+```
+
+#### ビルド後
+```bash
+node dist/index.js --sse
+```
+
+SSEモードではHTTPサーバーがポート3000で起動します。エンドポイント：
+- `GET /sse` - SSE接続の確立
+- `POST /messages` - メッセージの送信

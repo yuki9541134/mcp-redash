@@ -181,32 +181,36 @@ async function runServer() {
 }
 
 // サーバーの実行
-runServer().catch((error) => {
-  console.error("Fatal error in main():", error);
-  process.exit(1);
-});
-
-const app = express();
-
-const transports: {[sessionId: string]: SSEServerTransport} = {};
-
-app.get("/sse", async (_: Request, res: Response) => {
-  const transport = new SSEServerTransport('/messages', res);
-  transports[transport.sessionId] = transport;
-  res.on("close", () => {
-    delete transports[transport.sessionId];
+if (!process.argv.includes('--sse')) {
+  // 通常のSTDIOモードで起動
+  runServer().catch((error) => {
+    console.error("Fatal error in main():", error);
+    process.exit(1);
   });
-  await server.connect(transport);
-});
+} else {
+  // SSEモードで起動
+  const app = express();
+  const transports: {[sessionId: string]: SSEServerTransport} = {};
 
-app.post("/messages", async (req: Request, res: Response) => {
-  const sessionId = req.query.sessionId as string;
-  const transport = transports[sessionId];
-  if (transport) {
-    await transport.handlePostMessage(req, res);
-  } else {
-    res.status(400).send('No transport found for sessionId');
-  }
-});
+  app.get("/sse", async (_: Request, res: Response) => {
+    const transport = new SSEServerTransport('/messages', res);
+    transports[transport.sessionId] = transport;
+    res.on("close", () => {
+      delete transports[transport.sessionId];
+    });
+    await server.connect(transport);
+  });
 
-app.listen(3000);
+  app.post("/messages", async (req: Request, res: Response) => {
+    const sessionId = req.query.sessionId as string;
+    const transport = transports[sessionId];
+    if (transport) {
+      await transport.handlePostMessage(req, res);
+    } else {
+      res.status(400).send('No transport found for sessionId');
+    }
+  });
+
+  app.listen(3000);
+  console.error("Redash MCP Server running on SSE at http://localhost:3000");
+}

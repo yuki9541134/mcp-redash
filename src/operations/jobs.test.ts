@@ -55,6 +55,14 @@ describe('waitForJob', () => {
     expect(result).toEqual(failedJob);
   });
 
+  it('ジョブキャンセル(status=5)で結果を返す', async () => {
+    const cancelledJob = { job: { id: 'job-1', status: 5 } };
+    mockApiGet.mockResolvedValue(cancelledJob);
+
+    const result = await waitForJob('job-1', 5000, 100);
+    expect(result).toEqual(cancelledJob);
+  });
+
   it('ポーリング中にステータスが変わるケース', async () => {
     const pending = { job: { id: 'job-1', status: 1 } };
     const processing = { job: { id: 'job-1', status: 2 } };
@@ -77,7 +85,6 @@ describe('waitForJob', () => {
 
     // sleepが呼ばれるたびに時間を進める
     let elapsed = 0;
-    const realDateNow = Date.now;
     const startTime = Date.now();
     vi.spyOn(Date, 'now').mockImplementation(() => {
       return startTime + elapsed;

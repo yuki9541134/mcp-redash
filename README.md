@@ -87,16 +87,15 @@ node dist/index.js
 npx mcp-redash
 ```
 
-Claude DesktopまたはCursorのMCP設定例:
+Claude Codeの `.mcp.json` 設定例:
 
 ```json
 {
   "mcpServers": {
     "redash": {
+      "type": "stdio",
       "command": "npx",
-      "args": [
-        "mcp-redash"
-      ],
+      "args": ["mcp-redash"],
       "env": {
         "REDASH_API_KEY": "<YOUR_API_KEY>",
         "REDASH_BASE_URL": "https://redash.example.com"
@@ -112,17 +111,16 @@ Claude DesktopまたはCursorのMCP設定例:
 docker build -t yuki9541134/mcp-redash .
 ```
 
-Claude DesktopまたはCursorのMCP設定例:
+Claude Codeの `.mcp.json` 設定例:
 
 ```json
 {
   "mcpServers": {
     "redash": {
+      "type": "stdio",
       "command": "docker",
       "args": [
-        "run",
-        "-i",
-        "--rm",
+        "run", "-i", "--rm",
         "-e", "REDASH_API_KEY",
         "-e", "REDASH_BASE_URL",
         "yuki9541134/mcp-redash"

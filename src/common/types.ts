@@ -71,9 +71,45 @@ export interface DataSource {
 }
 
 /**
+ * 保存済みクエリの型
+ */
+export interface SavedQuery {
+  id: number;
+  name: string;
+  description: string | null;
+  query: string;
+  query_hash: string;
+  data_source_id: number | null;
+  is_archived: boolean;
+  is_draft: boolean;
+  is_safe: boolean;
+  schedule: Record<string, unknown> | null;
+  tags: string[];
+  created_at: string;
+  updated_at: string;
+  latest_query_data_id: number | null;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  options: Record<string, unknown>;
+}
+
+/**
+ * 保存済みクエリ一覧のページングレスポンス型
+ */
+export interface SavedQueryListResponse {
+  count: number;
+  page: number;
+  page_size: number;
+  results: SavedQuery[];
+}
+
+/**
  * APIレスポンスの共通型
  */
 export interface ApiResponse<T> {
   status: number;
   data: T;
-} 
+}

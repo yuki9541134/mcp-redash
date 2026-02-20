@@ -13,6 +13,7 @@ import { zodToJsonSchema } from 'zod-to-json-schema';
 
 import * as queries from './operations/queries.js';
 import * as datasources from './operations/datasources.js';
+import * as savedQueries from './operations/saved-queries.js';
 import { RedashError, isRedashError } from './common/errors.js';
 
 const VERSION = '1.0.0';
@@ -75,6 +76,26 @@ export function createServer(): Server {
           description: 'Get details about a specific data source',
           inputSchema: zodToJsonSchema(datasources.DataSourceSchema),
         },
+        {
+          name: 'get_query',
+          description: 'Get details of a saved query by its ID, including the SQL text',
+          inputSchema: zodToJsonSchema(savedQueries.GetQuerySchema),
+        },
+        {
+          name: 'search_queries',
+          description: 'Search saved queries by keyword',
+          inputSchema: zodToJsonSchema(savedQueries.SearchQueriesSchema),
+        },
+        {
+          name: 'get_query_result',
+          description: 'Get an existing query result by its result ID without re-executing the query',
+          inputSchema: zodToJsonSchema(savedQueries.GetQueryResultSchema),
+        },
+        {
+          name: 'get_saved_query_result',
+          description: 'Get the latest cached result of a saved query by its query ID',
+          inputSchema: zodToJsonSchema(savedQueries.GetSavedQueryResultSchema),
+        },
       ],
     };
   });
@@ -100,6 +121,34 @@ export function createServer(): Server {
           const source = await datasources.getDataSource(args.data_source_id);
           return {
             content: [{ type: 'text', text: JSON.stringify(source, null, 2) }],
+          };
+        }
+        case 'get_query': {
+          const args = savedQueries.GetQuerySchema.parse(request.params.arguments);
+          const query = await savedQueries.getQuery(args.query_id);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(query, null, 2) }],
+          };
+        }
+        case 'search_queries': {
+          const args = savedQueries.SearchQueriesSchema.parse(request.params.arguments);
+          const results = await savedQueries.searchQueries(args);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(results, null, 2) }],
+          };
+        }
+        case 'get_query_result': {
+          const args = savedQueries.GetQueryResultSchema.parse(request.params.arguments);
+          const result = await savedQueries.getQueryResultById(args.query_result_id);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          };
+        }
+        case 'get_saved_query_result': {
+          const args = savedQueries.GetSavedQueryResultSchema.parse(request.params.arguments);
+          const result = await savedQueries.getSavedQueryResult(args.query_id);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
           };
         }
         default:

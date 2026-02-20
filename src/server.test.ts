@@ -14,6 +14,17 @@ vi.mock('./operations/datasources.js', () => ({
   getDataSource: vi.fn(),
 }));
 
+vi.mock('./operations/saved-queries.js', () => ({
+  GetQuerySchema: { parse: vi.fn() },
+  SearchQueriesSchema: { parse: vi.fn() },
+  GetQueryResultSchema: { parse: vi.fn() },
+  GetSavedQueryResultSchema: { parse: vi.fn() },
+  getQuery: vi.fn(),
+  searchQueries: vi.fn(),
+  getQueryResultById: vi.fn(),
+  getSavedQueryResult: vi.fn(),
+}));
+
 vi.mock('./common/errors.js', async (importOriginal) => {
   const actual = await importOriginal<typeof import('./common/errors')>();
   return actual;

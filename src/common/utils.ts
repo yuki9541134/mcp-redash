@@ -84,7 +84,7 @@ export async function apiGet<T>(endpoint: string): Promise<T> {
 /**
  * Redash APIに対してPOSTリクエストを送信する
  */
-export async function apiPost<T, U = any>(endpoint: string, data: U): Promise<T> {
+export async function apiPost<T, U = unknown>(endpoint: string, data: U): Promise<T> {
   const { baseUrl } = getConfig();
   const url = `${baseUrl}${endpoint}`;
     

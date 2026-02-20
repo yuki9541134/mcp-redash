@@ -24,7 +24,7 @@ export interface QueryResult {
       type: string;
       friendly_name: string;
     }>;
-    rows: Array<Record<string, any>>;
+    rows: Array<Record<string, unknown>>;
   };
   data_source_id: number;
   runtime: number;
@@ -45,7 +45,7 @@ export interface Job {
   error?: string;
   query_result_id?: number;
   updated_at?: number;
-  result?: any;
+  result?: unknown;
 }
 
 /**
@@ -53,7 +53,7 @@ export interface Job {
  */
 export interface JobResponse {
   job?: Job;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**

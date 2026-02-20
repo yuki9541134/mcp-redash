@@ -70,13 +70,6 @@ export class RedashRateLimitError extends RedashError {
 /**
  * 与えられたエラーがRedashErrorかどうかをチェックする型ガード
  */
-export function isRedashError(error: any): error is RedashError {
-  return (
-    error instanceof RedashError ||
-    error instanceof RedashAuthenticationError ||
-    error instanceof RedashResourceNotFoundError ||
-    error instanceof RedashValidationError ||
-    error instanceof RedashServerError ||
-    error instanceof RedashRateLimitError
-  );
+export function isRedashError(error: unknown): error is RedashError {
+  return error instanceof RedashError;
 } 

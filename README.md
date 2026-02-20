@@ -162,6 +162,19 @@ docker run --rm -p 3000:3000 --env-file .env \
 - `GET /mcp` - SSEストリームの確立（サーバー → クライアント通知用）
 - `DELETE /mcp` - セッションの終了
 
+Claude Codeの `.mcp.json` 設定例:
+
+```json
+{
+  "mcpServers": {
+    "redash": {
+      "type": "http",
+      "url": "http://localhost:3000/mcp"
+    }
+  }
+}
+```
+
 ### SSE（非推奨）
 
 > **非推奨**: SSEモードはレガシー互換のために残されています。新規利用にはStreamable HTTPモードを推奨します。
@@ -183,3 +196,16 @@ node dist/index.js --sse
 エンドポイント:
 - `GET /sse` - SSE接続の確立
 - `POST /messages` - メッセージの送信
+
+Claude Codeの `.mcp.json` 設定例:
+
+```json
+{
+  "mcpServers": {
+    "redash": {
+      "type": "sse",
+      "url": "http://localhost:3000/sse"
+    }
+  }
+}
+```

@@ -7,6 +7,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { createServer } from '../server.js';
+import { PORT } from '../config.js';
 
 /**
  * セッション未検出時のエラーレスポンス
@@ -141,7 +142,6 @@ export async function startStreamableHttp(): Promise<void> {
     });
   });
 
-  const PORT = process.env.PORT || 3000;
   app.listen(PORT);
   console.error(`Redash MCP Server running on Streamable HTTP at http://localhost:${PORT}/mcp`);
 }

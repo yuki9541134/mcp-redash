@@ -74,7 +74,7 @@ function createServer(): Server {
   );
 
   // ListToolsリクエスト処理
-  server.setRequestHandler(ListToolsRequestSchema, async (request) => {
+  server.setRequestHandler(ListToolsRequestSchema, async (_request) => {
     return {
       tools: [
         {

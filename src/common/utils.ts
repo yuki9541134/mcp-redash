@@ -12,7 +12,7 @@ import {
   RedashServerError,
   RedashRateLimitError
 } from './errors.js';
-import { ApiResponse } from './types.js';
+
 
 /**
  * コンテンツをBase64エンコードする

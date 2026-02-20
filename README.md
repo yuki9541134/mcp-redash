@@ -153,9 +153,7 @@ node dist/index.js --streamable-http
 #### Docker
 
 ```sh
-docker run --rm -p 3000:3000 \
-  -e REDASH_API_KEY="<YOUR_API_KEY>" \
-  -e REDASH_BASE_URL="https://redash.example.com" \
+docker run --rm -p 3000:3000 --env-file .env \
   yuki9541134/mcp-redash --streamable-http
 ```
 

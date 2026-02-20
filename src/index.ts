@@ -1,9 +1,5 @@
 #!/usr/bin/env node
 
-import * as dotenv from 'dotenv';
-
-dotenv.config();
-
 function handleFatalError(error: unknown): void {
   console.error('Fatal error:', error);
   process.exit(1);

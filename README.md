@@ -65,19 +65,14 @@ npm link
 
 ### stdio（デフォルト）
 
-標準入出力で通信するモードです。Claude DesktopやCursorなどのMCPクライアントから利用する場合はこちらを使用します。
-
-#### 開発時
+標準入出力で通信するモードです。MCPクライアントからローカルで利用する場合はこちらを使用します。
 
 ```bash
-npm run dev
-```
-
-#### ビルド後
-
-```bash
+npm run build
 node dist/index.js
 ```
+
+> 開発時は `npm run dev` でTypeScriptを直接実行できます。
 
 #### npxで利用する場合
 
@@ -138,17 +133,12 @@ Claude Codeの `.mcp.json` 設定例:
 
 HTTPサーバーとして起動し、Streamable HTTPプロトコルで通信するモードです。Webクライアントやリモート接続に適しています。
 
-#### 開発時
-
 ```bash
-npm run dev -- --streamable-http
-```
-
-#### ビルド後
-
-```bash
+npm run build
 node dist/index.js --streamable-http
 ```
+
+> 開発時は `npm run dev -- --streamable-http` でTypeScriptを直接実行できます。
 
 #### Docker
 
@@ -181,17 +171,12 @@ Claude Codeの `.mcp.json` 設定例:
 
 HTTPサーバーとして起動し、Server-Sent Events (SSE) で通信するモードです。
 
-#### 開発時
-
 ```bash
-npm run dev -- --sse
-```
-
-#### ビルド後
-
-```bash
+npm run build
 node dist/index.js --sse
 ```
+
+> 開発時は `npm run dev -- --sse` でTypeScriptを直接実行できます。
 
 エンドポイント:
 - `GET /sse` - SSE接続の確立

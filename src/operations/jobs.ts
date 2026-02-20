@@ -4,7 +4,7 @@
 
 import { z } from 'zod';
 import { apiGet, sleep } from '../common/utils.js';
-import { Job, JobResponse, JobStatus } from '../common/types.js';
+import { Job, JobResponse } from '../common/types.js';
 import { RedashResourceNotFoundError } from '../common/errors.js';
 
 /**

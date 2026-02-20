@@ -5,9 +5,9 @@
 import { z } from 'zod';
 import { apiPost, apiGet } from '../common/utils.js';
 import { getConfig } from '../config.js';
-import { QueryParams, QueryResult, Job, JobResponse } from '../common/types.js';
+import { QueryParams, QueryResult, Job } from '../common/types.js';
 import { RedashValidationError, RedashError } from '../common/errors.js';
-import { getJobStatus, waitForJob } from './jobs.js';
+import { waitForJob } from './jobs.js';
 
 /**
  * クエリ実行パラメータのスキーマ

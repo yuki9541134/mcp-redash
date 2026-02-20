@@ -59,7 +59,7 @@ npm link
 | 通信方式 | 標準入出力 | HTTP | HTTP（Server-Sent Events） |
 | ポート | 不要 | 3000 | 3000 |
 | エンドポイント | - | `POST/GET/DELETE /mcp` | `GET /sse`, `POST /messages` |
-| 主な用途 | Claude Desktop, Cursor等 | Webクライアント, リモート接続 | レガシー互換 |
+| 主な用途 | ローカル利用 | リモート・複数クライアント共有 | レガシー互換 |
 
 > ポートは環境変数 `PORT` で変更できます（Streamable HTTP / SSE）。
 

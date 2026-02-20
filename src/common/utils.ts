@@ -2,7 +2,6 @@
  * Redash API操作用の共通ユーティリティ関数
  */
 
-import fetch, { Response } from 'node-fetch';
 import { getConfig } from '../config.js';
 import {
   RedashError,

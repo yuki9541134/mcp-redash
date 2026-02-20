@@ -1,14 +1,8 @@
 #!/usr/bin/env node
 
-import fetch from 'node-fetch';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
-
-// グローバルスコープにfetchが存在しない場合は追加
-if (!globalThis.fetch) {
-  globalThis.fetch = fetch as unknown as typeof global.fetch;
-}
 
 function handleFatalError(error: unknown): void {
   console.error('Fatal error:', error);

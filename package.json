@@ -1,6 +1,7 @@
 {
   "name": "mcp-redash",
   "version": "1.0.0",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
@@ -9,7 +10,7 @@
   "scripts": {
     "build": "tsc",
     "clean": "rimraf dist",
-    "dev": "ts-node src/index.ts",
+    "dev": "node --loader ts-node/esm src/index.ts",
     "start": "node dist/index.js",
     "lint": "eslint --ext .ts src",
     "format": "prettier --write 'src/**/*.ts'",
@@ -24,14 +25,12 @@
     "@modelcontextprotocol/sdk": "^1.26.0",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
-    "node-fetch": "^2.6.9",
     "zod": "^3.22.4",
     "zod-to-json-schema": "^3.23.5"
   },
   "devDependencies": {
     "@types/express": "^5.0.1",
     "@types/node": "^20.4.2",
-    "@types/node-fetch": "^2.6.4",
     "@typescript-eslint/eslint-plugin": "^6.1.0",
     "@typescript-eslint/parser": "^6.1.0",
     "@vitest/coverage-v8": "^4.0.18",

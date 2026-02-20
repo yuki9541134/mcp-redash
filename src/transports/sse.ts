@@ -5,6 +5,7 @@
 import express, { Request, Response } from 'express';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import { createServer } from '../server.js';
+import { PORT } from '../config.js';
 
 export async function startSSE(): Promise<void> {
   const app = express();
@@ -30,7 +31,6 @@ export async function startSSE(): Promise<void> {
     }
   });
 
-  const PORT = process.env.PORT || 3000;
   app.listen(PORT);
   console.error(`Redash MCP Server running on SSE at http://localhost:${PORT}`);
 }

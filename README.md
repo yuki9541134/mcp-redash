@@ -38,6 +38,7 @@ Redash APIキーを取得してください。
 
 * `REDASH_API_KEY`: RedashのAPIキー
 * `REDASH_BASE_URL`: RedashのURL（例: https://redash.example.com）
+* `PORT`（任意）: HTTPサーバーのポート番号（デフォルト: 3000、Streamable HTTP / SSE で使用）
 
 ### インストール
 
@@ -57,11 +58,9 @@ npm link
 |---|---|---|---|
 | 起動フラグ | なし | `--streamable-http` | `--sse` |
 | 通信方式 | 標準入出力 | HTTP | HTTP（Server-Sent Events） |
-| ポート | 不要 | 3000 | 3000 |
+| ポート | 不要 | デフォルト 3000 | デフォルト 3000 |
 | エンドポイント | - | `POST/GET/DELETE /mcp` | `GET /sse`, `POST /messages` |
 | 主な用途 | ローカル利用 | リモート・複数クライアント共有 | レガシー互換 |
-
-> ポートは環境変数 `PORT` で変更できます（Streamable HTTP / SSE）。
 
 ### stdio（デフォルト）
 
@@ -140,12 +139,13 @@ node dist/index.js --streamable-http
 
 > 開発時は `npm run dev -- --streamable-http` でTypeScriptを直接実行できます。
 
-#### Docker
+#### Docker Compose
 
 ```sh
-docker run --rm -p 3000:3000 --env-file .env \
-  yuki9541134/mcp-redash --streamable-http
+docker compose up -d
 ```
+
+> `.env` の `PORT` でポートを変更できます（デフォルト: 3000）。
 
 エンドポイント:
 - `POST /mcp` - リクエストの送信

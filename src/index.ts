@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 
-import express, { Request, Response } from 'express';
+import { randomUUID } from 'node:crypto';
+import express, { Request, Response, NextFunction } from 'express';
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
+  isInitializeRequest,
 } from "@modelcontextprotocol/sdk/types.js";
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
@@ -15,15 +18,11 @@ import * as dotenv from "dotenv";
 
 // Redash APIのオペレーションをインポート
 import * as queries from './operations/queries.js';
-import * as jobs from './operations/jobs.js';
 import * as datasources from './operations/datasources.js';
 
 // エラータイプをインポート
 import {
   RedashError,
-  RedashValidationError,
-  RedashResourceNotFoundError,
-  RedashAuthenticationError,
   isRedashError,
 } from './common/errors.js';
 
@@ -37,27 +36,14 @@ if (!globalThis.fetch) {
   globalThis.fetch = fetch as unknown as typeof global.fetch;
 }
 
-// サーバーの初期化
-const server = new Server(
-  {
-    name: "redash-mcp-server",
-    version: VERSION,
-  },
-  {
-    capabilities: {
-      tools: {},
-    },
-  }
-);
-
 // Redashエラーの整形関数
 function formatRedashError(error: RedashError): string {
   let message = `Redash API Error: ${error.message}`;
-  
+
   if (error.statusCode) {
     message += ` (Status: ${error.statusCode})`;
   }
-  
+
   if (error.responseBody) {
     try {
       const parsed = JSON.parse(error.responseBody);
@@ -69,126 +55,232 @@ function formatRedashError(error: RedashError): string {
       message += `\nDetails: ${error.responseBody}`;
     }
   }
-  
+
   return message;
 }
 
-// ListToolsリクエスト処理
-server.setRequestHandler(ListToolsRequestSchema, async (request) => {
-  return {
-    tools: [
-      // 使わなそうなのでコメントアウト
-      // {
-      //   name: "execute_query",
-      //   description: "Execute a SQL query against Redash data source and return a job ID",
-      //   inputSchema: zodToJsonSchema(queries.ExecuteQuerySchema),
-      // },
-      // {
-      //   name: "get_job_status",
-      //   description: "Check the status of a running query job",
-      //   inputSchema: zodToJsonSchema(jobs.JobStatusSchema),
-      // },
-      // {
-      //   name: "get_query_result",
-      //   description: "Get the results of a completed query",
-      //   inputSchema: zodToJsonSchema(queries.QueryResultSchema),
-      // },
-      {
-        name: "execute_query_and_wait",
-        description: "Execute a SQL query and wait for the results",
-        inputSchema: zodToJsonSchema(queries.ExecuteQuerySchema),
+// サーバーインスタンスを作成するファクトリ関数
+function createServer(): Server {
+  const server = new Server(
+    {
+      name: "redash-mcp-server",
+      version: VERSION,
+    },
+    {
+      capabilities: {
+        tools: {},
       },
-      {
-        name: "list_data_sources",
-        description: "List all available data sources",
-        inputSchema: zodToJsonSchema(z.object({})),
-      },
-      {
-        name: "get_data_source",
-        description: "Get details about a specific data source",
-        inputSchema: zodToJsonSchema(datasources.DataSourceSchema),
-      },
-    ],
-  };
-});
+    }
+  );
 
-// CallToolリクエスト処理
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
-  try {
-    switch (request.params.name) {
-      case "execute_query": {
-        const args = queries.ExecuteQuerySchema.parse(request.params.arguments);
-        const jobId = await queries.executeQuery(args);
-        return {
-          content: [{ type: "text", text: JSON.stringify({ job_id: jobId }, null, 2) }],
-        };
-      }
-      case "get_job_status": {
-        const args = jobs.JobStatusSchema.parse(request.params.arguments);
-        const status = await jobs.getJobStatus(args.job_id);
-        return {
-          content: [{ type: "text", text: JSON.stringify(status, null, 2) }],
-        };
-      }
-      case "get_query_result": {
-        const args = queries.QueryResultSchema.parse(request.params.arguments);
-        const result = await queries.getQueryResult(args.query_result_id);
-        return {
-          content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-        };
-      }
-      case "execute_query_and_wait": {
-        const args = queries.ExecuteQuerySchema.parse(request.params.arguments);
-        const result = await queries.executeQueryAndWait(args);
-        return {
-          content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-        };
-      }
-      case "list_data_sources": {
-        const sources = await datasources.listDataSources();
-        return {
-          content: [{ type: "text", text: JSON.stringify(sources, null, 2) }],
-        };
-      }
-      case "get_data_source": {
-        const args = datasources.DataSourceSchema.parse(request.params.arguments);
-        const source = await datasources.getDataSource(args.data_source_id);
-        return {
-          content: [{ type: "text", text: JSON.stringify(source, null, 2) }],
-        };
-      }
-      default:
-        throw new Error(`Unknown tool: ${request.params.name}`);
-    }
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      throw new Error(`Invalid input: ${JSON.stringify(error.errors)}`);
-    }
-    
-    if (isRedashError(error)) {
-      throw new Error(formatRedashError(error as RedashError));
-    }
-    
-    throw error;
-  }
-});
+  // ListToolsリクエスト処理
+  server.setRequestHandler(ListToolsRequestSchema, async (request) => {
+    return {
+      tools: [
+        {
+          name: "execute_query_and_wait",
+          description: "Execute a SQL query and wait for the results",
+          inputSchema: zodToJsonSchema(queries.ExecuteQuerySchema),
+        },
+        {
+          name: "list_data_sources",
+          description: "List all available data sources",
+          inputSchema: zodToJsonSchema(z.object({})),
+        },
+        {
+          name: "get_data_source",
+          description: "Get details about a specific data source",
+          inputSchema: zodToJsonSchema(datasources.DataSourceSchema),
+        },
+      ],
+    };
+  });
 
-// サーバー実行関数
+  // CallToolリクエスト処理
+  server.setRequestHandler(CallToolRequestSchema, async (request) => {
+    try {
+      switch (request.params.name) {
+        case "execute_query_and_wait": {
+          const args = queries.ExecuteQuerySchema.parse(request.params.arguments);
+          const result = await queries.executeQueryAndWait(args);
+          return {
+            content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+          };
+        }
+        case "list_data_sources": {
+          const sources = await datasources.listDataSources();
+          return {
+            content: [{ type: "text", text: JSON.stringify(sources, null, 2) }],
+          };
+        }
+        case "get_data_source": {
+          const args = datasources.DataSourceSchema.parse(request.params.arguments);
+          const source = await datasources.getDataSource(args.data_source_id);
+          return {
+            content: [{ type: "text", text: JSON.stringify(source, null, 2) }],
+          };
+        }
+        default:
+          throw new Error(`Unknown tool: ${request.params.name}`);
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        throw new Error(`Invalid input: ${JSON.stringify(error.errors)}`);
+      }
+
+      if (isRedashError(error)) {
+        throw new Error(formatRedashError(error as RedashError));
+      }
+
+      throw error;
+    }
+  });
+
+  return server;
+}
+
+// サーバー実行関数（stdioモード）
 async function runServer() {
+  const server = createServer();
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error("Redash MCP Server running on stdio");
 }
 
 // サーバーの実行
-if (!process.argv.includes('--sse')) {
-  // 通常のSTDIOモードで起動
-  runServer().catch((error) => {
-    console.error("Fatal error in main():", error);
-    process.exit(1);
+if (process.argv.includes('--streamable-http')) {
+  // Streamable HTTPモードで起動
+  const app = express();
+  app.use(express.json());
+
+  // Express ミドルウェアエラーを JSON-RPC 形式で返す
+  app.use((err: unknown, _req: Request, res: Response, next: NextFunction) => {
+    if (res.headersSent) {
+      return next(err);
+    }
+    const status = (err as { status?: number }).status ?? (err as { statusCode?: number }).statusCode ?? 400;
+    const message = err instanceof SyntaxError && 'body' in err
+      ? 'Parse error: Invalid JSON'
+      : err instanceof Error ? err.message : 'Bad Request';
+    res.status(status).json({
+      jsonrpc: '2.0',
+      error: { code: -32700, message },
+      id: null,
+    });
   });
-} else {
-  // SSEモードで起動
+
+  const transports = new Map<string, StreamableHTTPServerTransport>();
+
+  app.post('/mcp', async (req: Request, res: Response) => {
+    try {
+      const sessionId = req.headers['mcp-session-id'];
+      if (typeof sessionId === 'string' && transports.has(sessionId)) {
+        await transports.get(sessionId)!.handleRequest(req, res, req.body);
+      } else if (!sessionId && (
+        isInitializeRequest(req.body) ||
+        (Array.isArray(req.body) && req.body.length > 0 && isInitializeRequest(req.body[0]))
+      )) {
+        const transport = new StreamableHTTPServerTransport({
+          sessionIdGenerator: () => randomUUID(),
+        });
+        transport.onclose = () => {
+          if (transport.sessionId) {
+            transports.delete(transport.sessionId);
+          }
+        };
+        const sessionServer = createServer();
+        await sessionServer.connect(transport);
+        await transport.handleRequest(req, res, req.body);
+        if (transport.sessionId) {
+          transports.set(transport.sessionId, transport);
+        }
+      } else if (typeof sessionId === 'string') {
+        res.status(404).json({
+          jsonrpc: '2.0',
+          error: { code: -32001, message: 'Session not found' },
+          id: null,
+        });
+      } else {
+        res.status(400).json({
+          jsonrpc: '2.0',
+          error: { code: -32600, message: 'Bad Request: Missing session ID or invalid initialize request' },
+          id: null,
+        });
+      }
+    } catch (error) {
+      console.error('Error handling POST /mcp:', error);
+      if (!res.headersSent) {
+        res.status(500).json({
+          jsonrpc: '2.0',
+          error: { code: -32603, message: 'Internal error' },
+          id: null,
+        });
+      }
+    }
+  });
+
+  app.get('/mcp', async (req: Request, res: Response) => {
+    try {
+      const sessionId = req.headers['mcp-session-id'];
+      if (typeof sessionId === 'string' && transports.has(sessionId)) {
+        await transports.get(sessionId)!.handleRequest(req, res, req.body);
+      } else {
+        res.status(404).json({
+          jsonrpc: '2.0',
+          error: { code: -32001, message: 'Session not found' },
+          id: null,
+        });
+      }
+    } catch (error) {
+      console.error('Error handling GET /mcp:', error);
+      if (!res.headersSent) {
+        res.status(500).json({
+          jsonrpc: '2.0',
+          error: { code: -32603, message: 'Internal error' },
+          id: null,
+        });
+      }
+    }
+  });
+
+  app.delete('/mcp', async (req: Request, res: Response) => {
+    try {
+      const sessionId = req.headers['mcp-session-id'];
+      if (typeof sessionId === 'string' && transports.has(sessionId)) {
+        await transports.get(sessionId)!.handleRequest(req, res, req.body);
+      } else {
+        res.status(404).json({
+          jsonrpc: '2.0',
+          error: { code: -32001, message: 'Session not found' },
+          id: null,
+        });
+      }
+    } catch (error) {
+      console.error('Error handling DELETE /mcp:', error);
+      if (!res.headersSent) {
+        res.status(500).json({
+          jsonrpc: '2.0',
+          error: { code: -32603, message: 'Internal error' },
+          id: null,
+        });
+      }
+    }
+  });
+
+  // 未対応メソッドに 405 を返す
+  app.all('/mcp', (_req: Request, res: Response) => {
+    res.set('Allow', 'GET, POST, DELETE').status(405).json({
+      jsonrpc: '2.0',
+      error: { code: -32000, message: 'Method not allowed' },
+      id: null,
+    });
+  });
+
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT);
+  console.error(`Redash MCP Server running on Streamable HTTP at http://localhost:${PORT}/mcp`);
+} else if (process.argv.includes('--sse')) {
+  // SSEモードで起動（非推奨）
   const app = express();
   const transports: {[sessionId: string]: SSEServerTransport} = {};
 
@@ -198,7 +290,8 @@ if (!process.argv.includes('--sse')) {
     res.on("close", () => {
       delete transports[transport.sessionId];
     });
-    await server.connect(transport);
+    const sessionServer = createServer();
+    await sessionServer.connect(transport);
   });
 
   app.post("/messages", async (req: Request, res: Response) => {
@@ -211,6 +304,13 @@ if (!process.argv.includes('--sse')) {
     }
   });
 
-  app.listen(3000);
-  console.error("Redash MCP Server running on SSE at http://localhost:3000");
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT);
+  console.error(`Redash MCP Server running on SSE at http://localhost:${PORT}`);
+} else {
+  // 通常のSTDIOモードで起動
+  runServer().catch((error) => {
+    console.error("Fatal error in main():", error);
+    process.exit(1);
+  });
 }

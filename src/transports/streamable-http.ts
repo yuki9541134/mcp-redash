@@ -142,6 +142,7 @@ export async function startStreamableHttp(): Promise<void> {
     });
   });
 
-  app.listen(PORT);
-  console.error(`Redash MCP Server running on Streamable HTTP at http://localhost:${PORT}/mcp`);
+  app.listen(PORT, '::', () => {
+    console.error(`Redash MCP Server running on Streamable HTTP at http://localhost:${PORT}/mcp`);
+  });
 }

@@ -31,6 +31,7 @@ export async function startSSE(): Promise<void> {
     }
   });
 
-  app.listen(PORT);
-  console.error(`Redash MCP Server running on SSE at http://localhost:${PORT}`);
+  app.listen(PORT, '::', () => {
+    console.error(`Redash MCP Server running on SSE at http://localhost:${PORT}`);
+  });
 }

@@ -9,7 +9,7 @@ export interface Config {
   dataSourceId?: number;
 }
 
-export const PORT = process.env.PORT || 3000;
+export const PORT = Number(process.env.PORT) || 3000;
 
 let config: Config | null = null;
 

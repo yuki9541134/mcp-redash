@@ -5,10 +5,11 @@ Redash APIのMCPサーバーで、クエリの実行、結果の取得などの�
 ## ツール
 
 1. `execute_query_and_wait`
-   * クエリを実行し、結果が利用可能になるまで待機します
+   * SQLクエリを実行し、結果が利用可能になるまで待機します
    * 入力パラメータ:
-     * `data_source_id` (数値): クエリを実行するデータソースのID
      * `query` (文字列): 実行するSQLクエリ
+     * `data_source_id` (数値, 任意): クエリを実行するデータソースのID
+     * `max_age` (数値, 任意): キャッシュ有効期限（秒）
    * 戻り値: 利用可能になったクエリ結果
 
 2. `list_data_sources`
@@ -21,6 +22,32 @@ Redash APIのMCPサーバーで、クエリの実行、結果の取得などの�
    * 入力パラメータ:
      * `data_source_id` (数値): データソースのID
    * 戻り値: データソースの詳細情報
+
+4. `get_query`
+   * クエリIDにより保存済みクエリの詳細を取得します（SQLテキスト含む）
+   * 入力パラメータ:
+     * `query_id` (数値): クエリID
+   * 戻り値: 保存済みクエリの詳細情報
+
+5. `search_queries`
+   * キーワードで保存済みクエリを検索します
+   * 入力パラメータ:
+     * `q` (文字列): 検索キーワード
+     * `page` (数値, 任意): ページ番号
+     * `page_size` (数値, 任意): ページサイズ
+   * 戻り値: 検索にマッチした保存済みクエリの一覧
+
+6. `get_query_result`
+   * クエリ結果IDにより既存のクエリ結果を取得します（再実行なし）
+   * 入力パラメータ:
+     * `query_result_id` (数値): クエリ結果ID
+   * 戻り値: クエリ結果
+
+7. `get_saved_query_result`
+   * クエリIDにより保存済みクエリの最新キャッシュ結果を取得します
+   * 入力パラメータ:
+     * `query_id` (数値): クエリID
+   * 戻り値: 保存済みクエリの最新キャッシュ結果
 
 ## セットアップ
 
@@ -38,6 +65,7 @@ Redash APIキーを取得してください。
 
 * `REDASH_API_KEY`: RedashのAPIキー
 * `REDASH_BASE_URL`: RedashのURL（例: https://redash.example.com）
+* `DATA_SOURCE_ID`（任意）: デフォルトのデータソースID（`execute_query_and_wait` で `data_source_id` を省略した場合に使用）
 * `PORT`（任意）: HTTPサーバーのポート番号（デフォルト: 3000、Streamable HTTP / SSE で使用）
 
 ### インストール

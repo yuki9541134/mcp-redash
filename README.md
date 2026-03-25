@@ -160,6 +160,10 @@ Claude Codeの `.mcp.json` 設定例:
 
 HTTPサーバーとして起動し、Streamable HTTPプロトコルで通信するモードです。Webクライアントやリモート接続に適しています。
 
+`.env` で `PORT` `REDASH_BASE_URL` `REDASH_API_KEY` を設定してから起動してください。
+
+#### nodeで起動する場合
+
 ```bash
 npm run build
 node dist/index.js --streamable-http
@@ -167,7 +171,7 @@ node dist/index.js --streamable-http
 
 > 開発時は `npm run dev -- --streamable-http` でTypeScriptを直接実行できます。
 
-#### Docker Compose
+#### docker composeで起動する場合
 
 ```sh
 docker compose up -d
@@ -191,6 +195,14 @@ Claude Codeの `.mcp.json` 設定例:
     }
   }
 }
+```
+
+Codexの`config.toml` 設定例
+
+```toml
+[mcp_servers.redash]
+type = "url"
+url = "http://localhost:3000/mcp"
 ```
 
 ### SSE（非推奨）
